@@ -1,0 +1,7 @@
+.venv/
+.uv-cache/
+.uv-python/
+.hf-cache/
+features/
+__pycache__/
+*.pyc
