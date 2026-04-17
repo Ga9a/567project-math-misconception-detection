@@ -1,0 +1,49 @@
+{
+  "model": "LogisticRegression",
+  "feature_input": "TF-IDF + MPNet embedding",
+  "feature_shape_train": [
+    29356,
+    50233
+  ],
+  "feature_shape_val": [
+    7340,
+    50233
+  ],
+  "C": 1.0,
+  "solver": "saga",
+  "max_iter": 1000,
+  "class_weight": "balanced",
+  "train_seconds": 11.797923564910889,
+  "n_iter": [
+    30
+  ],
+  "accuracy": 0.8219346049046321,
+  "macro_f1": 0.7996120686934094,
+  "weighted_f1": 0.8245652980974194,
+  "per_class": {
+    "True_Correct": {
+      "precision": 0.9158309455587392,
+      "recall": 0.8506320691949435,
+      "f1": 0.8820282856157295,
+      "support": 3006
+    },
+    "False_Misconception": {
+      "precision": 0.8364941055868785,
+      "recall": 0.8275862068965517,
+      "f1": 0.8320163140453735,
+      "support": 1972
+    },
+    "False_Neither": {
+      "precision": 0.7714723926380368,
+      "recall": 0.7685255920550038,
+      "f1": 0.7699961729812476,
+      "support": 1309
+    },
+    "True_Neither": {
+      "precision": 0.6481051817478731,
+      "recall": 0.7958214624881291,
+      "f1": 0.7144075021312873,
+      "support": 1053
+    }
+  }
+}

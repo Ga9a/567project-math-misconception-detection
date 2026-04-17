@@ -1,0 +1,201 @@
+class,direction,rank,feature,coefficient
+True_Correct,positive,1,word::answer 15,5.131161212921143
+True_Correct,positive,2,word::26,4.880645275115967
+True_Correct,positive,3,word::72,4.440273284912109
+True_Correct,positive,4,word::72 student,3.970163106918335
+True_Correct,positive,5,word::answer 72,3.811249017715454
+True_Correct,positive,6,char::-3 ,3.459522008895874
+True_Correct,positive,7,char:: -3,3.4208648204803467
+True_Correct,positive,8,word::12,3.4037179946899414
+True_Correct,positive,9,word::answer 26,3.384355068206787
+True_Correct,positive,10,char:: -3 ,3.3683385848999023
+True_Correct,positive,11,word::26 student,3.3495824337005615
+True_Correct,positive,12,word::12 student,3.3045949935913086
+True_Correct,positive,13,word::times frac,2.7383460998535156
+True_Correct,positive,14,word::not shaded,2.7015841007232666
+True_Correct,positive,15,word::48 hours,2.6416914463043213
+True_Correct,positive,16,char::26 ,2.3771703243255615
+True_Correct,positive,17,char::72 ,2.290132761001587
+True_Correct,positive,18,word::are not,2.2747275829315186
+True_Correct,positive,19,char:: 26,2.2417049407958984
+True_Correct,positive,20,char:: 72,2.231269359588623
+True_Correct,positive,21,char:: 26 ,2.2253456115722656
+True_Correct,positive,22,char:: 72 ,2.2028820514678955
+True_Correct,positive,23,word::likely,2.1293325424194336
+True_Correct,positive,24,word::likely student,2.1200308799743652
+True_Correct,positive,25,word::answer likely,2.1200308799743652
+True_Correct,negative,1,word::48 student,-3.0866498947143555
+True_Correct,negative,2,word::answer student,-2.8979811668395996
+True_Correct,negative,3,word::are shaded,-2.7228569984436035
+True_Correct,negative,4,word::13,-2.660961866378784
+True_Correct,negative,5,word::10 15,-2.2790403366088867
+True_Correct,negative,6,word::frac frac,-2.1302664279937744
+True_Correct,negative,7,word::answer 22,-2.048154592514038
+True_Correct,negative,8,word::22 student,-2.0340073108673096
+True_Correct,negative,9,word::is shaded,-1.8746997117996216
+True_Correct,negative,10,word::64,-1.860007405281067
+True_Correct,negative,11,word::768,-1.8183538913726807
+True_Correct,negative,12,char::3}{,-1.8164466619491577
+True_Correct,negative,13,char::c{3},-1.8164466619491577
+True_Correct,negative,14,char::c{3}{,-1.8164466619491577
+True_Correct,negative,15,char::{3}{,-1.8164466619491577
+True_Correct,negative,16,char::c{3,-1.8164466619491577
+True_Correct,negative,17,char::ac{3},-1.8164466619491577
+True_Correct,negative,18,char::ac{3,-1.8164466619491577
+True_Correct,negative,19,char::rac{3,-1.8164466619491577
+True_Correct,negative,20,mpnet_dim_135,-1.6782190799713135
+True_Correct,negative,21,word::answer 13,-1.6458836793899536
+True_Correct,negative,22,word::13 student,-1.6446090936660767
+True_Correct,negative,23,word::22,-1.6324962377548218
+True_Correct,negative,24,word::answer 36,-1.624945878982544
+True_Correct,negative,25,word::36 student,-1.624945878982544
+False_Misconception,positive,1,char:: 3 ,4.596742153167725
+False_Misconception,positive,2,char:: 4 ,4.119940757751465
+False_Misconception,positive,3,char:: 9 ,3.4171228408813477
+False_Misconception,positive,4,word::22,3.3120036125183105
+False_Misconception,positive,5,char:: 5 ,3.2167253494262695
+False_Misconception,positive,6,word::are not,3.1771321296691895
+False_Misconception,positive,7,word::answer student,2.978970527648926
+False_Misconception,positive,8,word::48 student,2.9167490005493164
+False_Misconception,positive,9,word::not shaded,2.841662883758545
+False_Misconception,positive,10,word::10 15,2.5967276096343994
+False_Misconception,positive,11,word::768,2.497551918029785
+False_Misconception,positive,12,word::answer 13,2.4496426582336426
+False_Misconception,positive,13,word::13 student,2.4035980701446533
+False_Misconception,positive,14,char::2}{1,2.235391855239868
+False_Misconception,positive,15,char::2}{15,2.235391855239868
+False_Misconception,positive,16,char::{2}{1,2.235391855239868
+False_Misconception,positive,17,char::}{9},2.148815631866455
+False_Misconception,positive,18,char::}{9} ,2.148815631866455
+False_Misconception,positive,19,char::{3}{9,2.148815631866455
+False_Misconception,positive,20,char::3}{9},2.148815631866455
+False_Misconception,positive,21,char::{9} ,2.148815631866455
+False_Misconception,positive,22,char::9} ,2.148815631866455
+False_Misconception,positive,23,char::}{9,2.148815631866455
+False_Misconception,positive,24,char::3}{9,2.148815631866455
+False_Misconception,positive,25,mpnet_dim_213,2.0572121143341064
+False_Misconception,negative,1,word::answer 15,-5.513559818267822
+False_Misconception,negative,2,word::26,-4.198821544647217
+False_Misconception,negative,3,word::12,-3.7285141944885254
+False_Misconception,negative,4,word::answer 26,-3.265906572341919
+False_Misconception,negative,5,word::26 student,-3.2629544734954834
+False_Misconception,negative,6,word::answer 72,-3.101327419281006
+False_Misconception,negative,7,word::72 student,-3.0869855880737305
+False_Misconception,negative,8,word::12 student,-2.7087562084198
+False_Misconception,negative,9,word::times frac,-2.5008716583251953
+False_Misconception,negative,10,word::48 hours,-2.3572099208831787
+False_Misconception,negative,11,char:: -3,-2.3304178714752197
+False_Misconception,negative,12,char::-3 ,-2.3026740550994873
+False_Misconception,negative,13,char:: -3 ,-2.275848865509033
+False_Misconception,negative,14,word::are shaded,-2.2556629180908203
+False_Misconception,negative,15,char::3} ,-2.2072062492370605
+False_Misconception,negative,16,char::{3} ,-2.2072062492370605
+False_Misconception,negative,17,char::}{3} ,-2.2072062492370605
+False_Misconception,negative,18,word::likely,-2.185157537460327
+False_Misconception,negative,19,word::72,-2.159914016723633
+False_Misconception,negative,20,word::11 15,-2.1183557510375977
+False_Misconception,negative,21,word::11,-2.0414247512817383
+False_Misconception,negative,22,char:: 26,-2.036475896835327
+False_Misconception,negative,23,char::.2 ,-1.9898686408996582
+False_Misconception,negative,24,char::26 ,-1.9457536935806274
+False_Misconception,negative,25,char::1}{,-1.9406113624572754
+False_Neither,positive,1,word::are shaded,2.567443609237671
+False_Neither,positive,2,word::36 student,2.492003917694092
+False_Neither,positive,3,word::answer 36,2.492003917694092
+False_Neither,positive,4,char::ac{3},2.3671700954437256
+False_Neither,positive,5,char::c{3}{,2.3671700954437256
+False_Neither,positive,6,char::c{3,2.3671700954437256
+False_Neither,positive,7,char::c{3},2.3671700954437256
+False_Neither,positive,8,char::3}{,2.3671700954437256
+False_Neither,positive,9,char::rac{3,2.3671700954437256
+False_Neither,positive,10,char::{3}{,2.3671700954437256
+False_Neither,positive,11,char::ac{3,2.3671700954437256
+False_Neither,positive,12,word::13 student,2.360865354537964
+False_Neither,positive,13,word::frac frac,2.343682050704956
+False_Neither,positive,14,word::22 student,2.328420639038086
+False_Neither,positive,15,word::answer 13,2.31801438331604
+False_Neither,positive,16,word::13,2.3066627979278564
+False_Neither,positive,17,word::answer 22,2.262619972229004
+False_Neither,positive,18,word::48 student,2.246326446533203
+False_Neither,positive,19,word::60,2.2169570922851562
+False_Neither,positive,20,word::frac 15,2.133931875228882
+False_Neither,positive,21,word::10 15,2.0032737255096436
+False_Neither,positive,22,word::30 student,1.9999570846557617
+False_Neither,positive,23,word::30,1.9058717489242554
+False_Neither,positive,24,word::60 student,1.8846393823623657
+False_Neither,positive,25,word::answer 60,1.8846393823623657
+False_Neither,negative,1,char:: -3,-5.543911933898926
+False_Neither,negative,2,char::-3 ,-5.433485984802246
+False_Neither,negative,3,char:: -3 ,-5.40769100189209
+False_Neither,negative,4,word::answer 15,-4.79310941696167
+False_Neither,negative,5,word::times frac,-4.752811431884766
+False_Neither,negative,6,word::12 student,-4.475033283233643
+False_Neither,negative,7,word::answer 10,-4.471410751342773
+False_Neither,negative,8,word::10 student,-4.433923721313477
+False_Neither,negative,9,word::72,-4.422571182250977
+False_Neither,negative,10,word::answer 26,-3.7212436199188232
+False_Neither,negative,11,word::26 student,-3.7193589210510254
+False_Neither,negative,12,word::answer 72,-3.66214656829834
+False_Neither,negative,13,word::72 student,-3.657137393951416
+False_Neither,negative,14,word::26,-3.4459943771362305
+False_Neither,negative,15,char:: 6 ,-3.252803325653076
+False_Neither,negative,16,word::frac 12,-3.1467092037200928
+False_Neither,negative,17,word::frac times,-3.08579158782959
+False_Neither,negative,18,word::12,-3.02878737449646
+False_Neither,negative,19,word::are not,-2.9996654987335205
+False_Neither,negative,20,char::1}{,-2.8388993740081787
+False_Neither,negative,21,word::likely student,-2.7062933444976807
+False_Neither,negative,22,word::answer likely,-2.7062933444976807
+False_Neither,negative,23,word::not shaded,-2.6684212684631348
+False_Neither,negative,24,char::ac{1},-2.62117075920105
+False_Neither,negative,25,char::{1}{,-2.62117075920105
+True_Neither,positive,1,word::answer 15,5.175573348999023
+True_Neither,positive,2,word::times frac,4.5153703689575195
+True_Neither,positive,3,char:: -3,4.453546524047852
+True_Neither,positive,4,char:: -3 ,4.315186500549316
+True_Neither,positive,5,char::-3 ,4.276634693145752
+True_Neither,positive,6,word::10 student,4.256918907165527
+True_Neither,positive,7,word::answer 10,4.118625640869141
+True_Neither,positive,8,word::12 student,3.8792107105255127
+True_Neither,positive,9,word::26 student,3.6327035427093506
+True_Neither,positive,10,word::answer 26,3.602747917175293
+True_Neither,positive,11,char:: 6 ,3.5559632778167725
+True_Neither,positive,12,word::12,3.3535494804382324
+True_Neither,positive,13,char::.2 ,3.2785072326660156
+True_Neither,positive,14,word::frac times,3.270888090133667
+True_Neither,positive,15,word::frac 12,2.967350482940674
+True_Neither,positive,16,word::answer 72,2.952202320098877
+True_Neither,positive,17,char::6.2 ,2.9146618843078613
+True_Neither,positive,18,char:: 6.2 ,2.9101641178131104
+True_Neither,positive,19,char::1}{,2.8911499977111816
+True_Neither,positive,20,word::72 student,2.7739484310150146
+True_Neither,positive,21,word::26,2.7642011642456055
+True_Neither,positive,22,word::11 15,2.7125489711761475
+True_Neither,positive,23,char::1}{1,2.586009979248047
+True_Neither,positive,24,char::ac{1},2.523909091949463
+True_Neither,positive,25,char::{1}{,2.523909091949463
+True_Neither,negative,1,char:: 4 ,-4.134700298309326
+True_Neither,negative,2,char:: 3 ,-3.5339720249176025
+True_Neither,negative,3,word::answer 13,-3.1217756271362305
+True_Neither,negative,4,word::13 student,-3.1198599338531494
+True_Neither,negative,5,word::not shaded,-2.8748912811279297
+True_Neither,negative,6,char:: 5 ,-2.656956672668457
+True_Neither,negative,7,word::are not,-2.4522268772125244
+True_Neither,negative,8,word::10 15,-2.320929765701294
+True_Neither,negative,9,char::ac{3,-2.2967777252197266
+True_Neither,negative,10,char::c{3}{,-2.2967777252197266
+True_Neither,negative,11,char::{3}{,-2.2967777252197266
+True_Neither,negative,12,char::ac{3},-2.2967777252197266
+True_Neither,negative,13,char::c{3,-2.2967777252197266
+True_Neither,negative,14,char::c{3},-2.2967777252197266
+True_Neither,negative,15,char::3}{,-2.2967777252197266
+True_Neither,negative,16,char::rac{3,-2.2967777252197266
+True_Neither,negative,17,word::22,-2.2379941940307617
+True_Neither,negative,18,word::frac 15,-2.2172820568084717
+True_Neither,negative,19,word::frac frac,-2.201345682144165
+True_Neither,negative,20,word::answer 22,-2.1831324100494385
+True_Neither,negative,21,word::22 student,-2.1789746284484863
+True_Neither,negative,22,word::24,-2.1560537815093994
+True_Neither,negative,23,word::48 student,-2.0764336585998535
+True_Neither,negative,24,char:: 9 ,-1.9961081743240356
+True_Neither,negative,25,word::36,-1.945724368095398

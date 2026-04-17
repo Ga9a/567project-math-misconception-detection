@@ -1,0 +1,47 @@
+{
+  "model": "LinearSVC",
+  "feature_input": "TF-IDF + MPNet embedding",
+  "feature_shape_train": [
+    29356,
+    50233
+  ],
+  "feature_shape_val": [
+    7340,
+    50233
+  ],
+  "C": 1.0,
+  "max_iter": 5000,
+  "tol": 0.0001,
+  "class_weight": "balanced",
+  "train_seconds": 12.196441888809204,
+  "n_iter": 137,
+  "accuracy": 0.8403269754768392,
+  "macro_f1": 0.8130415292962705,
+  "weighted_f1": 0.8399387193282772,
+  "per_class": {
+    "True_Correct": {
+      "precision": 0.8978174603174603,
+      "recall": 0.9031936127744511,
+      "f1": 0.900497512437811,
+      "support": 3006
+    },
+    "False_Misconception": {
+      "precision": 0.8399209486166008,
+      "recall": 0.8620689655172413,
+      "f1": 0.8508508508508509,
+      "support": 1972
+    },
+    "False_Neither": {
+      "precision": 0.8037156704361874,
+      "recall": 0.760122230710466,
+      "f1": 0.7813113466823715,
+      "support": 1309
+    },
+    "True_Neither": {
+      "precision": 0.7191650853889943,
+      "recall": 0.7198480531813866,
+      "f1": 0.7195064072140485,
+      "support": 1053
+    }
+  }
+}

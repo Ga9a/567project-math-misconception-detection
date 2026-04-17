@@ -1,0 +1,10 @@
+                     precision    recall  f1-score   support
+
+       True_Correct       0.90      0.90      0.90      3006
+False_Misconception       0.84      0.86      0.85      1972
+      False_Neither       0.80      0.76      0.78      1309
+       True_Neither       0.72      0.72      0.72      1053
+
+           accuracy                           0.84      7340
+          macro avg       0.82      0.81      0.81      7340
+       weighted avg       0.84      0.84      0.84      7340
