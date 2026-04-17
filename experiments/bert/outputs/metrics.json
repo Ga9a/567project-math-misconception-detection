@@ -1,0 +1,48 @@
+{
+  "model": "BERT",
+  "model_name": "hf_cache/models--google-bert--bert-base-uncased/snapshots/86b5e0934494bd15c9632b12f734a8a67f723594",
+  "model_snapshot": "hf_cache/models--google-bert--bert-base-uncased/snapshots/86b5e0934494bd15c9632b12f734a8a67f723594",
+  "feature_input": "raw text",
+  "train_size": 29356,
+  "val_size": 7340,
+  "max_length": 192,
+  "epochs": 6.0,
+  "batch_size": 32,
+  "learning_rate": 2e-05,
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.1,
+  "seed": 42,
+  "device": "cuda",
+  "bf16": true,
+  "fp16": false,
+  "train_seconds": 149.23543453216553,
+  "accuracy": 0.8660762942779292,
+  "macro_f1": 0.8430527589091316,
+  "weighted_f1": 0.8658122380297077,
+  "per_class": {
+    "True_Correct": {
+      "precision": 0.9140419947506562,
+      "recall": 0.9268130405854956,
+      "f1": 0.9203832177073009,
+      "support": 3006
+    },
+    "False_Misconception": {
+      "precision": 0.8723731419784726,
+      "recall": 0.8630831643002028,
+      "f1": 0.8677032882997706,
+      "support": 1972
+    },
+    "False_Neither": {
+      "precision": 0.82,
+      "recall": 0.8143621084797555,
+      "f1": 0.8171713300114987,
+      "support": 1309
+    },
+    "True_Neither": {
+      "precision": 0.7713736791546589,
+      "recall": 0.7625830959164293,
+      "f1": 0.766953199617956,
+      "support": 1053
+    }
+  }
+}

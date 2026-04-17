@@ -1,0 +1,52 @@
+{
+  "model": "XGBoost",
+  "feature_input": "MPNet embedding",
+  "feature_shape_train": [
+    29356,
+    768
+  ],
+  "feature_shape_val": [
+    7340,
+    768
+  ],
+  "max_depth": 10,
+  "n_estimators": 1200,
+  "learning_rate": 0.04,
+  "subsample": 0.85,
+  "colsample_bytree": 0.85,
+  "reg_lambda": 1.5,
+  "early_stopping_rounds": 50,
+  "device": "cuda",
+  "train_seconds": 13.798626184463501,
+  "best_iteration": 442,
+  "best_score": 0.4482160216956133,
+  "accuracy": 0.8385558583106267,
+  "macro_f1": 0.7990207201345492,
+  "weighted_f1": 0.8324453187971385,
+  "per_class": {
+    "True_Correct": {
+      "precision": 0.8519503546099291,
+      "recall": 0.9590818363273453,
+      "f1": 0.9023474178403755,
+      "support": 3006
+    },
+    "False_Misconception": {
+      "precision": 0.8363899613899614,
+      "recall": 0.8788032454361054,
+      "f1": 0.8570722057368941,
+      "support": 1972
+    },
+    "False_Neither": {
+      "precision": 0.8155594405594405,
+      "recall": 0.7127578304048893,
+      "f1": 0.7607011822258459,
+      "support": 1309
+    },
+    "True_Neither": {
+      "precision": 0.8189189189189189,
+      "recall": 0.5754985754985755,
+      "f1": 0.6759620747350809,
+      "support": 1053
+    }
+  }
+}

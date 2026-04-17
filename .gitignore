@@ -2,6 +2,11 @@
 .uv-cache/
 .uv-python/
 .hf-cache/
+hf_cache/
 features/
 __pycache__/
 *.pyc
+experiments/tuning_runs/
+hf_trainer/
+*_hf_trainer/
+experiments/bert/outputs/model/model.safetensors

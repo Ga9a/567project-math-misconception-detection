@@ -6,6 +6,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import torch
+from huggingface_hub import snapshot_download
 from scipy import sparse
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -37,6 +38,20 @@ def encode_texts(model, texts, batch_size):
         normalize_embeddings=True,
     )
     return embeddings.astype(np.float32)
+
+
+def download_model_snapshot(model_name, cache_dir):
+    model_path = Path(model_name)
+    if model_path.exists():
+        print(f"Using local model snapshot: {model_path}")
+        return str(model_path)
+
+    print(f"Downloading {model_name} to cache: {cache_dir}")
+    return snapshot_download(
+        repo_id=model_name,
+        cache_dir=str(cache_dir),
+        resume_download=True,
+    )
 
 
 def save_split_csv(df, output_path):
@@ -112,6 +127,11 @@ def parse_args():
         default="cuda" if torch.cuda.is_available() else "cpu",
         choices=("cuda", "cpu"),
     )
+    parser.add_argument(
+        "--hf-cache-dir",
+        default="hf_cache",
+        help="Directory used to cache Hugging Face models before loading them locally.",
+    )
     return parser.parse_args()
 
 
@@ -169,7 +189,8 @@ def main():
     joblib.dump(char_vectorizer, output_dir / "tfidf_char_vectorizer.joblib")
 
     print(f"Encoding dense embeddings on {args.device} with {args.model_name}...")
-    model = SentenceTransformer(args.model_name, device=args.device)
+    model_snapshot = download_model_snapshot(args.model_name, Path(args.hf_cache_dir))
+    model = SentenceTransformer(model_snapshot, device=args.device, local_files_only=True)
     train_embeddings = encode_texts(model, train_texts, args.batch_size)
     val_embeddings = encode_texts(model, val_texts, args.batch_size)
     test_embeddings = encode_texts(model, test_texts, args.batch_size)
@@ -187,6 +208,7 @@ def main():
 
     metadata = {
         "model_name": args.model_name,
+        "model_snapshot": model_snapshot,
         "embedding_dim": int(train_embeddings.shape[1]),
         "labels": LABELS,
         "label_to_id": label_to_id,

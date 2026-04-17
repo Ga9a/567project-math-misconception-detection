@@ -1,0 +1,50 @@
+{
+  "model": "SimpleMLP",
+  "feature_input": "MPNet embedding",
+  "feature_shape_train": [
+    29356,
+    768
+  ],
+  "feature_shape_val": [
+    7340,
+    768
+  ],
+  "device": "cuda",
+  "epochs_requested": 24,
+  "best_epoch": 24,
+  "batch_size": 512,
+  "hidden_dim": 768,
+  "dropout": 0.1,
+  "learning_rate": 0.0015,
+  "weight_decay": 5e-05,
+  "train_seconds": 13.979577779769897,
+  "accuracy": 0.8189373297002724,
+  "macro_f1": 0.7894096677485501,
+  "weighted_f1": 0.8195014443681449,
+  "per_class": {
+    "True_Correct": {
+      "precision": 0.8961344537815126,
+      "recall": 0.886892880904857,
+      "f1": 0.8914897174385554,
+      "support": 3006
+    },
+    "False_Misconception": {
+      "precision": 0.8280612244897959,
+      "recall": 0.8230223123732252,
+      "f1": 0.8255340793489319,
+      "support": 1972
+    },
+    "False_Neither": {
+      "precision": 0.7480680061823802,
+      "recall": 0.7394957983193278,
+      "f1": 0.7437572032270457,
+      "support": 1309
+    },
+    "True_Neither": {
+      "precision": 0.6786678667866787,
+      "recall": 0.7160493827160493,
+      "f1": 0.6968576709796673,
+      "support": 1053
+    }
+  }
+}

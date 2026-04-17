@@ -1,10 +1,22 @@
 # Math Misconception Detection
 
-本项目用于数学误解检测课程项目。当前任务被简化为 **4 分类**，并已经完成数据预处理与特征向量生成流程。
+本项目用于数学误解检测课程项目。当前任务被简化为 **4 分类**，并支持以下训练路线：
+
+- `Logistic Regression`
+- `Linear SVM`
+- `XGBoost`
+- `Simple MLP`
+- `BERT`
+
+当前仓库面向 **Linux + conda** 使用。你已经有现成环境：
+
+`/blue/ruogu.fang/from_red/hanwen/3d-gen/conda/envs/flux_new`
+
+因此这里不再使用 `uv`。
 
 ## 任务定义
 
-原始 `Category` 有 6 类，本项目合并为 4 类：
+原始 `Category` 有 6 类，这里合并为 4 类：
 
 | 原始标签 | 4 分类标签 |
 | --- | --- |
@@ -15,7 +27,7 @@
 | `False_Neither` | `False_Neither` |
 | `True_Neither` | `True_Neither` |
 
-4 分类标签保存在 `Category_4` 字段中。
+新的 4 分类标签保存在 `Category_4` 字段中。
 
 ## 项目结构
 
@@ -25,62 +37,55 @@
 │   ├── train.csv
 │   ├── test.csv
 │   ├── sample_submission.csv
-│   ├── processed_train.csv      # preprocess.py 生成
-│   └── processed_test.csv       # preprocess.py 生成
-├── features/                    # build_features.py 生成，不提交 Git
+│   ├── processed_train.csv
+│   └── processed_test.csv
+├── features/                            # build_features.py 生成
+├── hf_cache/                            # Hugging Face 模型缓存
 ├── preprocess.py
 ├── build_features.py
-├── .gitignore
+├── experiments/
+│   ├── common.py
+│   ├── logistic_regression/
+│   ├── svm/
+│   ├── xgboost/
+│   ├── mlp/
+│   └── bert/
 └── README.md
 ```
 
-`features/`、虚拟环境和缓存目录都已在 `.gitignore` 中忽略。
-
 ## 环境配置
 
-本项目使用 `uv` 管理环境，推荐 Python 3.11。
+先激活现有 conda 环境：
 
-```powershell
-uv venv --python 3.11
-.venv\Scripts\activate
+```bash
+source /apps/conda/25.7.0/etc/profile.d/conda.sh
+conda activate /blue/ruogu.fang/from_red/hanwen/3d-gen/conda/envs/flux_new
 ```
 
-安装 CUDA 12.8 版本 PyTorch：
+如果缺依赖，直接在这个环境里补：
 
-```powershell
-uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+```bash
+pip install scikit-learn sentence-transformers xgboost matplotlib
 ```
 
-安装其余依赖：
+如果你要训练 BERT，通常还需要这些：
 
-```powershell
-uv pip install pandas numpy scipy scikit-learn sentence-transformers tqdm joblib matplotlib
+```bash
+pip install transformers datasets accelerate huggingface_hub
 ```
 
-开发环境验证结果：
+检查 PyTorch / CUDA：
 
-```text
-torch: 2.11.0+cu128
-torch CUDA: 12.8
-GPU: NVIDIA GeForce RTX 5060 Laptop GPU
-sentence-transformers: 5.4.1
-scikit-learn: 1.8.0
-pandas: 3.0.2
-matplotlib: 3.10.8
-```
-
-检查 GPU：
-
-```powershell
-.\.venv\Scripts\python.exe -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
+```bash
+python -c "import torch; print(torch.__version__); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'cpu')"
 ```
 
 ## 执行流程
 
 ### 1. 数据预处理
 
-```powershell
-.\.venv\Scripts\python.exe preprocess.py
+```bash
+python preprocess.py
 ```
 
 输入：
@@ -97,7 +102,7 @@ data/processed_train.csv
 data/processed_test.csv
 ```
 
-预处理会把以下字段拼成统一文本：
+预处理阶段会将以下字段拼成统一文本：
 
 ```text
 Question: {QuestionText}
@@ -107,28 +112,43 @@ Student explanation: {StudentExplanation}
 
 ### 2. 特征生成
 
-```powershell
-.\.venv\Scripts\python.exe build_features.py
+```bash
+python build_features.py \
+  --device cpu \
+  --hf-cache-dir hf_cache
 ```
 
-输入：
+说明：
+
+- 该脚本会先做 `train/val` 划分，再生成特征
+- MPNet 模型会 **先下载到本地缓存**，再从本地路径加载
+- 如果当前节点有可用 GPU，可以把 `--device cpu` 改为 `--device cuda`
+
+主要输出：
 
 ```text
-data/processed_train.csv
-data/processed_test.csv
-```
+features/train_split.csv
+features/val_split.csv
+features/test_processed.csv
 
-输出目录：
+features/y_train.npy
+features/y_val.npy
 
-```text
-features/
+features/mpnet_train_embeddings.npy
+features/mpnet_val_embeddings.npy
+features/mpnet_test_embeddings.npy
+
+features/X_train.npz
+features/X_val.npz
+features/X_test.npz
+features/feature_metadata.json
 ```
 
 ## 训练集和验证集划分
 
-由于当前 `test.csv` 样本很少，模型评估使用从训练集中划分出的验证集。
+由于当前 `test.csv` 样本很少，评估使用从训练集中切出的验证集。
 
-划分方式：
+默认划分方式：
 
 ```text
 train: 80%
@@ -137,324 +157,124 @@ random_state: 42
 stratify: Category_4
 ```
 
-当前样本数量：
+## 模型输入约定
 
-```text
-train: 29356
-validation: 7340
-test: 3
-```
-
-当前类别分布：
-
-| 类别 | Train | Validation |
-| --- | ---: | ---: |
-| `True_Correct` | 12023 | 3006 |
-| `False_Misconception` | 7888 | 1972 |
-| `False_Neither` | 5233 | 1309 |
-| `True_Neither` | 4212 | 1053 |
-
-划分后的文本文件：
-
-```text
-features/train_split.csv
-features/val_split.csv
-features/test_processed.csv
-```
-
-## 特征向量说明
-
-当前特征提取阶段会同时生成两种向量，分别用于不同模型。
-
-### 1. 768 维 MPNet Embedding
-
-模型：
-
-```text
-sentence-transformers/all-mpnet-base-v2
-```
-
-输出文件：
-
-```text
-features/mpnet_train_embeddings.npy
-features/mpnet_val_embeddings.npy
-features/mpnet_test_embeddings.npy
-```
-
-矩阵形状：
-
-```text
-train: (29356, 768)
-val:   (7340, 768)
-test:  (3, 768)
-```
-
-用途：
-
-```text
-XGBoost / LightGBM
-Simple MLP
-其他适合 dense vector 的模型
-```
-
-### 2. 50233 维融合特征
-
-融合特征由以下部分拼接：
-
-```text
-word-level TF-IDF
-char-level TF-IDF
-768 维 MPNet embedding
-```
-
-当前维度：
-
-```text
-TF-IDF: 49465
-MPNet embedding: 768
-Total: 50233
-```
-
-输出文件：
-
-```text
-features/X_train.npz
-features/X_val.npz
-features/X_test.npz
-```
-
-矩阵形状：
-
-```text
-X_train: (29356, 50233)
-X_val:   (7340, 50233)
-X_test:  (3, 50233)
-```
-
-用途：
-
-```text
-Logistic Regression
-Linear SVM
-其他适合高维稀疏文本特征的线性模型
-```
-
-## 模型输入安排
-
-后续实验请按下表选择输入特征。这个安排是当前项目的默认约定。
-
-| 模型 | 推荐输入 | 文件 | 维度 | 备注 |
-| --- | --- | --- | ---: | --- |
-| Logistic Regression | TF-IDF + MPNet 融合特征 | `features/X_train.npz`, `features/X_val.npz` | 50233 | 推荐首个 baseline |
-| SVM | TF-IDF + MPNet 融合特征 | `features/X_train.npz`, `features/X_val.npz` | 50233 | 使用 `LinearSVC`，不建议 RBF SVM |
-| XGBoost / LightGBM | MPNet embedding | `features/mpnet_train_embeddings.npy`, `features/mpnet_val_embeddings.npy` | 768 | 不建议直接使用 50233 维稀疏特征 |
-| Simple MLP | MPNet embedding | `features/mpnet_train_embeddings.npy`, `features/mpnet_val_embeddings.npy` | 768 | dense vector 更适合 MLP |
-| BERT / DistilBERT | 原始 `text` | `features/train_split.csv`, `features/val_split.csv` | 不适用 | 直接 fine-tune 文本，不使用预生成向量 |
+| 模型 | 输入 | 文件 |
+| --- | --- | --- |
+| Logistic Regression | TF-IDF + MPNet 融合特征 | `features/X_train.npz`, `features/X_val.npz` |
+| Linear SVM | TF-IDF + MPNet 融合特征 | `features/X_train.npz`, `features/X_val.npz` |
+| XGBoost | MPNet embedding | `features/mpnet_train_embeddings.npy`, `features/mpnet_val_embeddings.npy` |
+| Simple MLP | MPNet embedding | `features/mpnet_train_embeddings.npy`, `features/mpnet_val_embeddings.npy` |
+| BERT | 原始文本 | `features/train_split.csv`, `features/val_split.csv` |
 
 简要规则：
 
 ```text
-线性模型 -> 50233 维融合特征
-树模型 / MLP -> 768 维 MPNet embedding
+线性模型 -> 融合稀疏特征
+树模型 / MLP -> MPNet dense embedding
 Transformer -> 原始 text
 ```
 
-## 标签编码
+## 训练命令
 
-标签文件：
+### Logistic Regression
+
+```bash
+python experiments/logistic_regression/train_logreg.py
+```
+
+### Linear SVM
+
+```bash
+python experiments/svm/train_svm.py
+```
+
+### XGBoost
+
+```bash
+python experiments/xgboost/train_xgboost.py \
+  --n-estimators 400 \
+  --max-depth 8 \
+  --n-jobs 8
+```
+
+### Simple MLP
+
+```bash
+python experiments/mlp/train_mlp.py \
+  --epochs 20 \
+  --batch-size 256 \
+  --device cpu
+```
+
+如果当前节点有 GPU，可改为：
+
+```bash
+python experiments/mlp/train_mlp.py \
+  --epochs 20 \
+  --batch-size 256 \
+  --device cuda
+```
+
+### BERT
+
+`BERT` 训练脚本会先下载模型到 `hf_cache/`，然后再从本地 snapshot 加载。
+
+```bash
+python experiments/bert/train_bert.py \
+  --model-name google-bert/bert-base-uncased \
+  --hf-cache-dir hf_cache \
+  --epochs 1 \
+  --batch-size 8 \
+  --max-length 256 \
+  --device cpu
+```
+
+如果当前节点有 GPU，可改为：
+
+```bash
+python experiments/bert/train_bert.py \
+  --model-name google-bert/bert-base-uncased \
+  --hf-cache-dir hf_cache \
+  --epochs 1 \
+  --batch-size 16 \
+  --max-length 256 \
+  --device cuda
+```
+
+## 输出结果
+
+每个训练脚本都会在各自目录下生成：
 
 ```text
-features/y_train.npy
-features/y_val.npy
+experiments/<model>/outputs/
+├── metrics.json
+├── classification_report.txt
+├── classification_report.csv
+├── confusion_matrix.csv
+├── confusion_matrix.png
+├── confusion_matrix_normalized.png
+├── per_class_metrics.png
+├── val_predictions.csv
+├── top_features_by_class.csv
+└── model artifact
 ```
 
-标签映射：
+其中：
 
-```text
-0 -> True_Correct
-1 -> False_Misconception
-2 -> False_Neither
-3 -> True_Neither
-```
+- `metrics.json` 包含 accuracy、macro F1、weighted F1、训练时间等
+- `val_predictions.csv` 便于后续 error analysis
+- `top_features_by_class.csv` 提供每个模型的可解释性摘要
+- BERT / MPNet 相关模型会把 Hugging Face snapshot 路径写入指标文件，便于复现
 
-完整元信息保存在：
+## 推荐执行顺序
 
-```text
-features/feature_metadata.json
-```
+为了尽快拿到可比较结果，建议按下面顺序运行：
 
-## 读取特征示例
+1. `python preprocess.py`
+2. `python build_features.py --device cpu --hf-cache-dir hf_cache`
+3. `python experiments/xgboost/train_xgboost.py`
+4. `python experiments/mlp/train_mlp.py --device cpu`
+5. `python experiments/bert/train_bert.py --hf-cache-dir hf_cache --epochs 1 --device cpu`
 
-### 读取 50233 维融合特征
-
-```python
-import numpy as np
-from scipy import sparse
-
-X_train = sparse.load_npz("features/X_train.npz")
-X_val = sparse.load_npz("features/X_val.npz")
-y_train = np.load("features/y_train.npy")
-y_val = np.load("features/y_val.npy")
-```
-
-### 读取 768 维 MPNet Embedding
-
-```python
-import numpy as np
-
-X_train = np.load("features/mpnet_train_embeddings.npy")
-X_val = np.load("features/mpnet_val_embeddings.npy")
-y_train = np.load("features/y_train.npy")
-y_val = np.load("features/y_val.npy")
-```
-
-### Logistic Regression 示例
-
-```python
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, f1_score
-
-clf = LogisticRegression(
-    max_iter=2000,
-    class_weight="balanced",
-    solver="saga",
-    n_jobs=-1,
-)
-
-clf.fit(X_train, y_train)
-pred = clf.predict(X_val)
-
-print(classification_report(y_val, pred))
-print("macro_f1:", f1_score(y_val, pred, average="macro"))
-```
-
-推荐评估指标：
-
-```text
-accuracy
-macro-F1
-classification report
-confusion matrix
-```
-
-其中 `macro-F1` 比 accuracy 更重要，因为类别分布不完全均衡。
-
-## 已搭建实验
-
-### Logistic Regression Baseline
-
-实验目录：
-
-```text
-experiments/logistic_regression/
-```
-
-运行：
-
-```powershell
-.\.venv\Scripts\python.exe experiments\logistic_regression\train_logreg.py
-```
-
-该实验使用：
-
-```text
-features/X_train.npz
-features/X_val.npz
-```
-
-也就是 50233 维 TF-IDF + MPNet 融合特征。
-
-默认输出：
-
-```text
-experiments/logistic_regression/outputs/
-```
-
-主要结果包括：
-
-```text
-metrics.json
-classification_report.txt
-classification_report.csv
-confusion_matrix.png
-confusion_matrix_normalized.png
-per_class_metrics.png
-val_predictions.csv
-logreg_model.joblib
-top_features_by_class.csv
-```
-
-### Support Vector Machine Baseline
-
-实验目录：
-
-```text
-experiments/svm/
-```
-
-运行：
-
-```powershell
-.\.venv\Scripts\python.exe experiments\svm\train_svm.py
-```
-
-该实验使用：
-
-```text
-features/X_train.npz
-features/X_val.npz
-```
-
-也就是 50233 维 TF-IDF + MPNet 融合特征。当前默认模型为 `LinearSVC`，不建议在该高维稀疏特征上使用 RBF SVM。
-
-默认输出：
-
-```text
-experiments/svm/outputs/
-```
-
-## Git 提交说明
-
-推荐提交：
-
-```text
-README.md
-.gitignore
-preprocess.py
-build_features.py
-```
-
-不建议提交：
-
-```text
-.venv/
-.uv-cache/
-.uv-python/
-.hf-cache/
-features/
-```
-
-`data/processed_train.csv` 和 `data/processed_test.csv` 是可复现中间文件，一般不需要提交，除非课程要求提交处理后的数据。
-
-## 完整复现命令
-
-```powershell
-uv venv --python 3.11
-.venv\Scripts\activate
-
-uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
-uv pip install pandas numpy scipy scikit-learn sentence-transformers tqdm joblib matplotlib
-
-python preprocess.py
-python build_features.py
-```
-
-预期主要输出：
-
-```text
-features/mpnet_train_embeddings.npy  # 768 维 embedding
-features/X_train.npz                 # 50233 维融合特征
-features/y_train.npy
-features/y_val.npy
-```
+如果你在 GPU 节点上，优先把 `build_features.py`、`train_mlp.py`、`train_bert.py` 的 `--device` 改成 `cuda`。
