@@ -220,10 +220,10 @@ def main():
         "weighted_f1": weighted_f1,
         "per_class": {
             label: {
-                "precision": float(precision[idx]),
-                "recall": float(recall[idx]),
-                "f1": float(f1[idx]),
-                "support": int(support[idx]),
+                "precision": float(precision[idx]), # type: ignore
+                "recall": float(recall[idx]),# type: ignore
+                "f1": float(f1[idx]),# type: ignore
+                "support": int(support[idx]),# type: ignore
             }
             for idx, label in enumerate(labels)
         },
@@ -233,7 +233,7 @@ def main():
         json.dump(metrics, file, indent=2)
 
     report_text = classification_report(y_val, y_pred, target_names=labels, zero_division=0)
-    (output_dir / "classification_report.txt").write_text(report_text, encoding="utf-8")
+    (output_dir / "classification_report.txt").write_text(report_text, encoding="utf-8")# type: ignore
 
     report_dict = classification_report(
         y_val,
