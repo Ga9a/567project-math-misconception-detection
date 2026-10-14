@@ -1,5 +1,7 @@
 import argparse
 import csv
+import os
+import tempfile
 from pathlib import Path
 
 
@@ -27,9 +29,11 @@ def build_combined_text(row):
 def process_file(input_path, output_path, has_labels):
     input_path = Path(input_path)
     output_path = Path(output_path)
+    if input_path.resolve() == output_path.resolve():
+        raise ValueError("Input and output paths must differ")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with input_path.open("r", encoding="utf-8", newline="") as in_file:
+    with input_path.open("r", encoding="utf-8-sig", newline="") as in_file:
         reader = csv.DictReader(in_file)
         fieldnames = reader.fieldnames or []
         missing_columns = [col for col in TEXT_COLUMNS if col not in fieldnames]
@@ -42,25 +46,33 @@ def process_file(input_path, output_path, has_labels):
         if has_labels:
             output_fields.extend(["Category", "Category_4"])
 
-        with output_path.open("w", encoding="utf-8", newline="") as out_file:
-            writer = csv.DictWriter(out_file, fieldnames=output_fields)
-            writer.writeheader()
+        temporary_path = None
+        try:
+            with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="", dir=output_path.parent,
+                                             prefix=output_path.name + ".", suffix=".tmp", delete=False) as out_file:
+                temporary_path = Path(out_file.name)
+                writer = csv.DictWriter(out_file, fieldnames=output_fields)
+                writer.writeheader()
 
-            for row in reader:
-                processed = {
-                    "row_id": row.get("row_id", ""),
-                    "QuestionId": row.get("QuestionId", ""),
-                    "text": build_combined_text(row),
-                }
+                for row in reader:
+                    processed = {
+                        "row_id": row.get("row_id", ""),
+                        "QuestionId": row.get("QuestionId", ""),
+                        "text": build_combined_text(row),
+                    }
 
-                if has_labels:
-                    original_category = row["Category"].strip()
-                    if original_category not in CATEGORY_MAP:
-                        raise ValueError(f"Unexpected category {original_category!r} in {input_path}")
-                    processed["Category"] = original_category
-                    processed["Category_4"] = CATEGORY_MAP[original_category]
+                    if has_labels:
+                        original_category = row["Category"].strip()
+                        if original_category not in CATEGORY_MAP:
+                            raise ValueError(f"Unexpected category {original_category!r} in {input_path}")
+                        processed["Category"] = original_category
+                        processed["Category_4"] = CATEGORY_MAP[original_category]
 
-                writer.writerow(processed)
+                    writer.writerow(processed)
+            os.replace(temporary_path, output_path)
+        finally:
+            if temporary_path is not None and temporary_path.exists():
+                temporary_path.unlink()
 
 
 def parse_args():
