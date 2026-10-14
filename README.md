@@ -1,280 +1,83 @@
 # Math Misconception Detection
 
-本项目用于数学误解检测课程项目。当前任务被简化为 **4 分类**，并支持以下训练路线：
+A four-class student math misconception classification project comparing logistic regression, Linear SVM, XGBoost, an MLP, and BERT. The source data have six categories; preprocessing maps them to the project-specific `Category_4` target.
 
-- `Logistic Regression`
-- `Linear SVM`
-- `XGBoost`
-- `Simple MLP`
-- `BERT`
+## Task and labels
 
-当前仓库面向 **Linux + conda** 使用。你已经有现成环境：
-
-`/blue/ruogu.fang/from_red/hanwen/3d-gen/conda/envs/flux_new`
-
-因此这里不再使用 `uv`。
-
-## 任务定义
-
-原始 `Category` 有 6 类，这里合并为 4 类：
-
-| 原始标签 | 4 分类标签 |
+| Original category | Four-class target |
 | --- | --- |
-| `True_Correct` | `True_Correct` |
-| `False_Correct` | `True_Correct` |
-| `False_Misconception` | `False_Misconception` |
-| `True_Misconception` | `False_Misconception` |
+| `True_Correct`, `False_Correct` | `True_Correct` |
+| `False_Misconception`, `True_Misconception` | `False_Misconception` |
 | `False_Neither` | `False_Neither` |
 | `True_Neither` | `True_Neither` |
 
-新的 4 分类标签保存在 `Category_4` 字段中。
+This target differs from the original six-class task. Scores and outputs must be interpreted using the four-class definition; they are not directly interchangeable with a six-class competition metric.
 
-## 项目结构
+## Setup
 
-```text
-.
-├── data/
-│   ├── train.csv
-│   ├── test.csv
-│   ├── sample_submission.csv
-│   ├── processed_train.csv
-│   └── processed_test.csv
-├── features/                            # build_features.py 生成
-├── hf_cache/                            # Hugging Face 模型缓存
-├── preprocess.py
-├── build_features.py
-├── experiments/
-│   ├── common.py
-│   ├── logistic_regression/
-│   ├── svm/
-│   ├── xgboost/
-│   ├── mlp/
-│   └── bert/
-└── README.md
+Use Python 3.11 or 3.12 and run commands from the repository root:
+
+```sh
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-models.txt
 ```
 
-## 环境配置
+On Windows, activate `.venv\Scripts\Activate.ps1`. `requirements.txt` contains the classical ML and reporting dependencies; `requirements-models.txt` adds model training and embedding dependencies. Use a PyTorch build appropriate for your accelerator when training on CUDA. No machine-specific conda path is required.
 
-先激活现有 conda 环境：
+## Data and preprocessing
 
-```bash
-source /apps/conda/25.7.0/etc/profile.d/conda.sh
-conda activate /blue/ruogu.fang/from_red/hanwen/3d-gen/conda/envs/flux_new
-```
+Place source files at `data/train.csv` and `data/test.csv`. Required text columns are `QuestionText`, `MC_Answer`, and `StudentExplanation`; training also requires `Category`. Row and question identifiers are retained. Obtain data from its original provider and follow its distribution terms.
 
-如果缺依赖，直接在这个环境里补：
-
-```bash
-pip install scikit-learn sentence-transformers xgboost matplotlib
-```
-
-如果你要训练 BERT，通常还需要这些：
-
-```bash
-pip install transformers datasets accelerate huggingface_hub
-```
-
-检查 PyTorch / CUDA：
-
-```bash
-python -c "import torch; print(torch.__version__); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'cpu')"
-```
-
-## 执行流程
-
-### 1. 数据预处理
-
-```bash
+```sh
 python preprocess.py
 ```
 
-输入：
+Outputs are `data/processed_train.csv` and `data/processed_test.csv`. Text combines the question, selected answer, and student explanation. Outputs are written atomically, so invalid labels do not replace an existing processed file. Input and output paths must differ.
 
-```text
-data/train.csv
-data/test.csv
+## Features and validation split
+
+```sh
+python build_features.py --device cpu --hf-cache-dir hf_cache
 ```
 
-输出：
+The script makes a stratified 80/20 train/validation split using seed 42, then fits word and character TF-IDF vectorizers only on training text. It downloads MPNet to the configured cache and generates normalized embeddings. Use `--device cuda` for a supported GPU.
 
-```text
-data/processed_train.csv
-data/processed_test.csv
-```
+| Model | Input |
+| --- | --- |
+| Logistic regression, Linear SVM | Sparse TF-IDF + MPNet fusion (`features/X_*.npz`) |
+| XGBoost, MLP | Dense MPNet embeddings (`features/mpnet_*_embeddings.npy`) |
+| BERT | Raw text from `features/train_split.csv` and `features/val_split.csv` |
 
-预处理阶段会将以下字段拼成统一文本：
+Labels are saved as `features/y_train.npy` and `features/y_val.npy`; metadata and vectorizers are also saved under `features/`. Features, caches, and checkpoints are generated artifacts. Their sizes depend on the dataset and configured vocabulary limits.
 
-```text
-Question: {QuestionText}
-Answer: {MC_Answer}
-Student explanation: {StudentExplanation}
-```
+## Train models
 
-### 2. 特征生成
-
-```bash
-python build_features.py \
-  --device cpu \
-  --hf-cache-dir hf_cache
-```
-
-说明：
-
-- 该脚本会先做 `train/val` 划分，再生成特征
-- MPNet 模型会 **先下载到本地缓存**，再从本地路径加载
-- 如果当前节点有可用 GPU，可以把 `--device cpu` 改为 `--device cuda`
-
-主要输出：
-
-```text
-features/train_split.csv
-features/val_split.csv
-features/test_processed.csv
-
-features/y_train.npy
-features/y_val.npy
-
-features/mpnet_train_embeddings.npy
-features/mpnet_val_embeddings.npy
-features/mpnet_test_embeddings.npy
-
-features/X_train.npz
-features/X_val.npz
-features/X_test.npz
-features/feature_metadata.json
-```
-
-## 训练集和验证集划分
-
-由于当前 `test.csv` 样本很少，评估使用从训练集中切出的验证集。
-
-默认划分方式：
-
-```text
-train: 80%
-validation: 20%
-random_state: 42
-stratify: Category_4
-```
-
-## 模型输入约定
-
-| 模型 | 输入 | 文件 |
-| --- | --- | --- |
-| Logistic Regression | TF-IDF + MPNet 融合特征 | `features/X_train.npz`, `features/X_val.npz` |
-| Linear SVM | TF-IDF + MPNet 融合特征 | `features/X_train.npz`, `features/X_val.npz` |
-| XGBoost | MPNet embedding | `features/mpnet_train_embeddings.npy`, `features/mpnet_val_embeddings.npy` |
-| Simple MLP | MPNet embedding | `features/mpnet_train_embeddings.npy`, `features/mpnet_val_embeddings.npy` |
-| BERT | 原始文本 | `features/train_split.csv`, `features/val_split.csv` |
-
-简要规则：
-
-```text
-线性模型 -> 融合稀疏特征
-树模型 / MLP -> MPNet dense embedding
-Transformer -> 原始 text
-```
-
-## 训练命令
-
-### Logistic Regression
-
-```bash
+```sh
 python experiments/logistic_regression/train_logreg.py
+python experiments/svm/train_svm.py --C 1.0 --max-iter 5000
+python experiments/xgboost/train_xgboost.py --n-estimators 400 --max-depth 8 --n-jobs 8
+python experiments/mlp/train_mlp.py --epochs 20 --batch-size 256 --device cpu
+python experiments/bert/train_bert.py --model-name google-bert/bert-base-uncased --hf-cache-dir hf_cache --epochs 1 --batch-size 8 --max-length 256 --device cpu
 ```
 
-### Linear SVM
+Run each command with `--help` for supported options. BERT downloads its model snapshot before loading it locally. `experiments/tune_models.py` and `experiments/bert/sweep_epochs.py` run multi-configuration experiments and can require substantial compute.
 
-```bash
-python experiments/svm/train_svm.py
+## Outputs and interpretation
+
+Each model writes to `experiments/<model>/outputs/`: metrics, classification reports, confusion matrices, validation predictions, plots, and model artifacts. Focus on macro-F1 and per-class precision/recall alongside accuracy and weighted F1. See the baseline READMEs and `reports/` for recorded experiments. Historical metrics are retained results, not claims of a fresh training run.
+
+The random row split may share question contexts between training and validation. For claims about generalization to unseen questions, add a grouped split by `QuestionId` and report that protocol separately. Hyperparameter selection also requires a held-out evaluation beyond the repeatedly used validation split.
+
+## Verify
+
+```sh
+python -m unittest discover -s tests -v
+python -m compileall -q preprocess.py build_features.py experiments
+python scripts/smoke_classical.py
+python test.py --feature-dir features
 ```
 
-### XGBoost
+Preprocessing tests use small synthetic CSVs and need only the Python standard library. They check label mapping, required columns, atomic failure behavior, and protection against overwriting raw input. Full feature generation and neural training additionally require the model dependencies, data, downloaded weights, and suitable hardware.
 
-```bash
-python experiments/xgboost/train_xgboost.py \
-  --n-estimators 400 \
-  --max-depth 8 \
-  --n-jobs 8
-```
-
-### Simple MLP
-
-```bash
-python experiments/mlp/train_mlp.py \
-  --epochs 20 \
-  --batch-size 256 \
-  --device cpu
-```
-
-如果当前节点有 GPU，可改为：
-
-```bash
-python experiments/mlp/train_mlp.py \
-  --epochs 20 \
-  --batch-size 256 \
-  --device cuda
-```
-
-### BERT
-
-`BERT` 训练脚本会先下载模型到 `hf_cache/`，然后再从本地 snapshot 加载。
-
-```bash
-python experiments/bert/train_bert.py \
-  --model-name google-bert/bert-base-uncased \
-  --hf-cache-dir hf_cache \
-  --epochs 1 \
-  --batch-size 8 \
-  --max-length 256 \
-  --device cpu
-```
-
-如果当前节点有 GPU，可改为：
-
-```bash
-python experiments/bert/train_bert.py \
-  --model-name google-bert/bert-base-uncased \
-  --hf-cache-dir hf_cache \
-  --epochs 1 \
-  --batch-size 16 \
-  --max-length 256 \
-  --device cuda
-```
-
-## 输出结果
-
-每个训练脚本都会在各自目录下生成：
-
-```text
-experiments/<model>/outputs/
-├── metrics.json
-├── classification_report.txt
-├── classification_report.csv
-├── confusion_matrix.csv
-├── confusion_matrix.png
-├── confusion_matrix_normalized.png
-├── per_class_metrics.png
-├── val_predictions.csv
-├── top_features_by_class.csv
-└── model artifact
-```
-
-其中：
-
-- `metrics.json` 包含 accuracy、macro F1、weighted F1、训练时间等
-- `val_predictions.csv` 便于后续 error analysis
-- `top_features_by_class.csv` 提供每个模型的可解释性摘要
-- BERT / MPNet 相关模型会把 Hugging Face snapshot 路径写入指标文件，便于复现
-
-## 推荐执行顺序
-
-为了尽快拿到可比较结果，建议按下面顺序运行：
-
-1. `python preprocess.py`
-2. `python build_features.py --device cpu --hf-cache-dir hf_cache`
-3. `python experiments/xgboost/train_xgboost.py`
-4. `python experiments/mlp/train_mlp.py --device cpu`
-5. `python experiments/bert/train_bert.py --hf-cache-dir hf_cache --epochs 1 --device cpu`
-
-如果你在 GPU 节点上，优先把 `build_features.py`、`train_mlp.py`、`train_bert.py` 的 `--device` 改成 `cuda`。
+The classical smoke command uses small synthetic fixtures to verify training and report generation; its scores are not dataset benchmark results. `test.py` checks generated feature dimensions, finite values, and label alignment without training a model.

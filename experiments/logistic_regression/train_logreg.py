@@ -37,7 +37,7 @@ def parse_args():
     parser.add_argument("--output-dir", default="experiments/logistic_regression/outputs")
     parser.add_argument("--C", type=float, default=1.0)
     parser.add_argument("--max-iter", type=int, default=1000)
-    parser.add_argument("--solver", default="saga", choices=["saga", "liblinear", "lbfgs"])
+    parser.add_argument("--solver", default="saga", choices=["saga", "lbfgs"])
     parser.add_argument("--random-state", type=int, default=42)
     parser.add_argument("--top-k-features", type=int, default=25)
     parser.add_argument("--verbose", type=int, default=0)

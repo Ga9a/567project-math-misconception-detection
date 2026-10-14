@@ -1,0 +1,8 @@
+-r requirements.txt
+torch>=2.2,<3
+transformers>=4.45,<5
+sentence-transformers>=3,<6
+huggingface-hub>=0.25,<1
+datasets>=2.20,<5
+accelerate>=0.34,<2
+xgboost>=2,<4
